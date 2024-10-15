@@ -51,27 +51,27 @@ async function concurrentRequests() {
 concurrentRequests();
 
 
-async function parallelCalls(urls) {
+async function parallelCalls() {
     try {
-        console.log('Fetching data from URLs...');
+        const [usersRes, postsRes] = await Promise.all([
+            fetch("https://jsonplaceholder.typicode.com/users"),
+            fetch("https://jsonplaceholder.typicode.com/posts")
+        ]);
 
-       
-        const responses = await Promise.all(
-            urls.map(url =>
-                new Promise(resolve => setTimeout(() => {
-                    resolve(`Data fetched from ${url}`);
-                }, Math.random() * 2000)) 
-        ));
+        
+        if (!usersRes.ok || !postsRes.ok) {
+            throw new Error('Failed to fetch data');
+        }
 
-        console.log('All responses received:');
-        responses.forEach(response => {
-            console.log(response);
-        });
+        const users = await usersRes.json();
+        const posts = await postsRes.json();
+
+        console.log('Users:', users);
+        console.log('Posts:', posts);
     } catch (error) {
-        console.error('Error during parallel calls:', error);
+        console.error('Error:', error);
     }
 }
 
-const urls = ['https://jsonplaceholder.typicode.com/users'];
-parallelCalls(urls);
+parallelCalls()
 
